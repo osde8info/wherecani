@@ -126,7 +126,7 @@ MIT
 ## Contributing
 
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
- 
+
 ## Google Analytics
 
 This project supports Google Analytics (GA4) via a measurement ID stored in an environment variable. To enable analytics:
