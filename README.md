@@ -77,7 +77,7 @@ vercel
 
 ## Project Structure
 
-```
+```text
 wherecani/
 ├── src/
 │   ├── app/
