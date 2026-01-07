@@ -126,3 +126,21 @@ MIT
 ## Contributing
 
 Contributions are welcome! Please feel free to submit pull requests or open issues for bugs and feature requests.
+ 
+## Google Analytics
+
+This project supports Google Analytics (GA4) via a measurement ID stored in an environment variable. To enable analytics:
+
+1. Create a GA4 property in Google Analytics and copy the Measurement ID (looks like `G-XXXXXXXXXX`).
+2. Set the environment variable `NEXT_PUBLIC_GA_MEASUREMENT_ID` in your environment or in the Vercel dashboard.
+
+Local example (macOS / Linux):
+
+```bash
+export NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+npm run dev
+```
+
+On Vercel: add `NEXT_PUBLIC_GA_MEASUREMENT_ID` in the Project Settings → Environment Variables.
+
+When set, the app will automatically load gtag and report page views. Use `src/lib/analytics.ts` to send custom events, e.g. `event('sign_up', { method: 'email' })`.
