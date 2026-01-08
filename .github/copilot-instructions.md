@@ -2,45 +2,59 @@
 
 ## Project Overview
 
-This is a Next.js 15 application showcasing top days out in Surrey, England. It uses the App Router with client-side filtering and a card-based UI.
+A Next.js 15 application showcasing top days out in Surrey. Single-page app with client-side filtering and responsive card layout. Deployed on Vercel.
 
-## Architecture
+## Core Architecture
 
-- **Framework**: Next.js 15 with App Router (`src/app/`)
-- **Styling**: Tailwind CSS with responsive grid layouts
-- **Data**: Hardcoded in `src/lib/daysOut.ts` as `DayOut[]` interface
-- **Components**: Reusable React components in `src/components/`
-- **Icons**: lucide-react for consistent iconography
+**Data Flow**: `src/lib/daysOut.ts` (hardcoded `DayOut[]`) → `src/app/page.tsx` (client filtering) → `src/components/DayOutCard.tsx` (display)
 
-## Key Patterns
+**Key Decision**: Client-side filtering with derived categories keeps implementation simple. Add server-side filtering only if data grows beyond ~50 items.
 
-- **Client Components**: Use `"use client"` for interactive features (filtering, state)
-- **Data Structure**: Each day out has `id`, `title`, `description`, `image` (emoji), `location`, `rating`, `category`, `url`
-- **Filtering**: Derive categories dynamically from data: `Array.from(new Set(topDaysOut.map(item => item.category)))`
-- **Card Layout**: Full-height cards with emoji header, category badge, content, and CTA button
-- **Path Aliases**: Import from `@/lib/...` or `@/components/...`
+**Component Hierarchy**:
+- `page.tsx`: Client component managing filter state, rendering categories dynamically, grid layout
+- `DayOutCard`: Presentational, displays individual day out with emoji header, metadata, CTA
 
-## Development Workflow
+## Data Structure & Patterns
 
-- **Start Dev**: `npm run dev` (serves on localhost:3000)
-- **Build**: `npm run build` (Vercel-optimized)
-- **Lint**: `npm run lint` (ESLint with Next.js config)
-- **GA Integration**: Set `NEXT_PUBLIC_GA_MEASUREMENT_ID` for analytics
+**`DayOut` Interface** (`src/lib/daysOut.ts`):
+```typescript
+{ id, title, description, image (emoji), location, rating, category, url? }
+```
 
-## Code Examples
+**Critical Pattern - Dynamic Categories**: Categories derived at runtime via `Array.from(new Set(topDaysOut.map(item => item.category)))`. Never hardcode category lists. Filter buttons auto-generate from data.
 
-- **Adding New Day Out**: Append to `topDaysOut` array in `src/lib/daysOut.ts`
-- **New Category**: Automatically appears in filter buttons via Set derivation
-- **Component Props**: `<DayOutCard dayOut={dayOut} />` expects full `DayOut` object
-- **Styling**: Use Tailwind classes like `bg-gradient-to-r from-blue-600 to-blue-800` for headers
+**Adding Content**: Append to `topDaysOut` array—category auto-appears in UI. URL is optional for safety.
 
-## Conventions
+## Development Commands
 
-- **TypeScript**: Strict mode enabled, no unused locals/parameters
-- **Responsive**: Mobile-first with `md:` and `lg:` breakpoints
-- **External Links**: Use `target="_blank" rel="noopener noreferrer"` for safety
-- **Ratings**: Display as `<Star className="fill-yellow-400" /> {rating}`
+```bash
+npm run dev      # localhost:3000 with hot reload
+npm run build    # Vercel-optimized production build
+npm run lint     # ESLint validation (enforces strict TS)
+```
+
+## Code Conventions
+
+- **Client Components**: Mark interactive features with `"use client"` (filtering state, event handlers)
+- **TypeScript**: Strict mode enforced—no unused variables/params
+- **Path Aliases**: Use `@/lib/*` and `@/components/*` (configured in `tsconfig.json`)
+- **Responsive**: Mobile-first breakpoints: `md:` (768px), `lg:` (1024px)
+- **Styling**: Tailwind classes. Gradients: `bg-gradient-to-r from-blue-600 to-blue-800`. Star rating: `<Star className="fill-yellow-400" />`
+- **External Links**: Always include `target="_blank" rel="noopener noreferrer"` for XSS safety
+- **Empty States**: Show "No results found" when filtered data is empty (see `page.tsx` line ~72)
+
+## Analytics Integration
+
+Google Analytics optional via `NEXT_PUBLIC_GA_MEASUREMENT_ID` env var. Configured in `layout.tsx` with `afterInteractive` script strategy. Omit env var to disable.
+
+## File Purposes
+
+- `src/app/page.tsx`: Main UI, filtering logic (89 lines)
+- `src/components/DayOutCard.tsx`: Card component with emoji header, category badge, location, rating, CTA (58 lines)
+- `src/lib/daysOut.ts`: Data definitions (114 lines, 10 entries)
+- `tailwind.config.ts`: TW customization (minimal)
+- `tsconfig.json`: Path aliases (`@/*`), strict mode, strict null checks enabled
 
 ## Deployment
 
-Optimized for Vercel with `vercel.json` config. Ensure environment variables are set in Vercel dashboard.
+Vercel-optimized via `next.config.ts` with `reactStrictMode: true`. Environment variables set in Vercel dashboard. No special build config needed.
