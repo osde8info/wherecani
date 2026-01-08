@@ -1,17 +1,32 @@
 "use client";
 
-import { topDaysOut } from "@/lib/daysOut";
 import { DayOutCard } from "@/components/DayOutCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import type { DayOut } from "@/lib/db";
 
 export default function Home() {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [daysOut, setDaysOut] = useState<DayOut[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const categories = Array.from(new Set(topDaysOut.map((item) => item.category)));
+    useEffect(() => {
+        fetch("/api/daysout")
+            .then((res) => res.json())
+            .then((data) => {
+                setDaysOut(data);
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Failed to load days out:", err);
+                setLoading(false);
+            });
+    }, []);
+
+    const categories = Array.from(new Set(daysOut.map((item) => item.category)));
 
     const filteredDaysOut = selectedCategory
-        ? topDaysOut.filter((item) => item.category === selectedCategory)
-        : topDaysOut;
+        ? daysOut.filter((item) => item.category === selectedCategory)
+        : daysOut;
 
     return (
         <main className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -56,19 +71,27 @@ export default function Home() {
                 </div>
 
                 {/* Days Out Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                    {filteredDaysOut.map((dayOut) => (
-                        <DayOutCard key={dayOut.id} dayOut={dayOut} />
-                    ))}
-                </div>
-
-                {/* Empty State */}
-                {filteredDaysOut.length === 0 && (
+                {loading ? (
                     <div className="text-center py-12">
-                        <p className="text-xl text-gray-500">
-                            No results found for the selected category.
-                        </p>
+                        <p className="text-xl text-gray-500">Loading days out...</p>
                     </div>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                            {filteredDaysOut.map((dayOut) => (
+                                <DayOutCard key={dayOut.id} dayOut={dayOut} />
+                            ))}
+                        </div>
+
+                        {/* Empty State */}
+                        {filteredDaysOut.length === 0 && (
+                            <div className="text-center py-12">
+                                <p className="text-xl text-gray-500">
+                                    No results found for the selected category.
+                                </p>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 
